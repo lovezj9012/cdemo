@@ -7,7 +7,7 @@
 #define SIZE 10
 
 
-int main() {
+int main03() {
 	//ÉèÖÃ±àÂë¸ñÊ½
 	SetConsoleOutputCP(65001);
 	getWord();
