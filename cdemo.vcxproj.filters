@@ -24,12 +24,30 @@
     <ClCompile Include="snake.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="PostRequest.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="HttpBase.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="HttpBoost.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dict.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="snake.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="http_mark.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="HttpBase.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="HttpBoost.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

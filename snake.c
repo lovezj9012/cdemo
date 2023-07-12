@@ -23,7 +23,7 @@
 * 4¡¢ÓÎÏ·½áÊø
 */
 
-int main() {
+int main011() {
 	srand((size_t)time(NULL));
 
 	initWall();
