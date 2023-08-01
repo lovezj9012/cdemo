@@ -215,23 +215,46 @@ int HttpPost()
 //}
 //
 
+
+void postCustom(const string& url,const string& token) {
+	boost::asio::io_service io;
+	HttpBoost c(io);
+	c.post(url, token);
+	io.run();
+	std::cout << c.getResponse() << endl;
+}
+
+
 int main() {
+
 	//设置编码格式
 	SetConsoleOutputCP(65001);
+
+	//unsigned short us = 65538;
+	//cout <<"us=" << us << endl;
+
+	//short sh = 32769;
+	//cout <<"sh=" << sh << endl;
+
+	//return 0;
+
+
+
+	
 	//HttpPost();
 
 	//HttpBoost();
 
-	string url = "http://localhost:8001/eduservice/chapter/addChapter/[{\"courseId\":\"1639144627057586178\",\"title\" : \"4\",\"sort\" : 0}]";
-	
-	//string url = "https://www.kuaidi100.com/query/[{\"type\":\"yuantong\",\"postid\":\"11111111111\"}]";
 
 
-	boost::asio::io_service io;
-	HttpBoost c(io);
-	c.post(url,"");
-	io.run();
-	std::cout << c.getResponse() << endl;
+	//custome
+	/*string url = "http://localhost:8001/eduservice/chapter/addChapter/[{\"courseId\":\"1639144627057586178\",\"title\" : \"4\",\"sort\" : 0}]";
+	string token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzY2hvb2wtdXNlciIsImlhdCI6MTY5MDE2MzYzOSwiZXhwIjoxNjkwMjUwMDM5LCJpZCI6IjE2MzU0Njk5MDU1NzI3MDQyNTgiLCJuaWNrbmFtZSI6IjEyMyJ9.ZK85giE-wP-UL41wNxz8rqupEDGCn1afidvW7YfJB3g";*/
+
+	//adm test
+	string url = "https://10.1.17.140/opra-api/adm/sams/uploadAdm[[{\"prefix\":\"999\",\"formType\":\"\",\"memoType\":\"ADM\",\"serialNo\":\"9996020000284\",\"admOrderNo\":\"9996020000284\",\"tktRelation\":\"Y\",\"agentNo\":\"08322705\",\"agentName\":\"阿斯兰航空服务（上海）有限公司\",\"status\":\"Y\",\"station\":\"BJS\",\"admCreateDate\":\"20230717\",\"reviewUser\":\"mas\",\"reviewDate\":\"20230801\",\"admReviewDate\":\"20230801\"}]]";
+	string token = "ZBHS2H5iRok2tSDptbIGdUZJS63ohkH3";
+	postCustom(url, token);
 
 	return 0;
 }

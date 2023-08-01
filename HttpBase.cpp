@@ -103,7 +103,8 @@ int HttpBase::buildPostRequest(const std::string& server, const std::string& pat
 	//out_request << "Content-Type: application/x-www-form-urlencoded\r\n";
 	out_request << "Content-Type: application/json\r\n";
 	if (authentication.compare("") != 0) {
-		out_request << "Authorization: Basic " << authentication << "\r\n";
+		//out_request << "token: " << authentication << "\r\n";
+		out_request << "Authorization: " << authentication << "\r\n";
 	}
 	out_request << "Accept: application/json\r\n";
 	out_request << "Connection: close\r\n\r\n";
