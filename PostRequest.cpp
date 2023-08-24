@@ -4,6 +4,11 @@
 #include <boost/asio.hpp>
 #include <Windows.h>
 
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+//#include <boost/json.hpp>
+
+
 #include "HttpBoost.h"
 
 using namespace std;
@@ -81,7 +86,7 @@ int HttpPost()
 {
 	//	char szSrcBuffer[1024] = { "authorJson={loginAccount:\"admin\"}&parmJson={code:\"SheBeiLiXianGaoJingShangChuan\",params:{id:\"123456\",remarks:\"fire alarm\",time_alarm:\"2017-1-1\",alarm_source:\"192.168.1.11\"}}" };
 	//char szSrcBuffer[1024] = { "authorJson={loginAccount:\"admin\"}&parmJson={code:\"SheBeiLiXianChaXun\",params:{}}" };
-	char szSrcBuffer[1024] = {"[{\"couponNo\": \"0\",\"dateOfIssue\" : 1675699200000,\"mchRelatedCode\" : \"1072821274415747073\",\"prefix\" : \"999\",\"salesType\" : \"E\",\"ticketNo\" : \"2436163381\",\"ticketType\" : \"P\",\"traceCode\" : \"1125430417315450880\",\"transactionSeq\" : \"1072820137981915140\"}]"};
+	char szSrcBuffer[1024] = { "[{\"couponNo\": \"0\",\"dateOfIssue\" : 1675699200000,\"mchRelatedCode\" : \"1072821274415747073\",\"prefix\" : \"999\",\"salesType\" : \"E\",\"ticketNo\" : \"2436163381\",\"ticketType\" : \"P\",\"traceCode\" : \"1125430417315450880\",\"transactionSeq\" : \"1072820137981915140\"}]" };
 	std::string strUrlEnCodedBuffer = UrlEncode(szSrcBuffer);
 	io_service iosev;
 	ip::tcp::socket socket(iosev);
@@ -215,13 +220,50 @@ int HttpPost()
 //}
 //
 
+struct person {
+	string name;
+	int age;
+};
 
-void postCustom(const string& url,const string& token) {
+struct resultVo {
+	int code;
+	string message;
+	person p[10];
+};
+
+
+//读取json文件{"code":200,"message":"success","data":{"name":"zhangsan","age":25}}
+template<class T>
+void readJson(const string& data, T& t) {
+	std::size_t start = data.find_first_of("{");
+	std::size_t end = data.find_last_of("}");
+	string res = data.substr(start, end-start+1);
+	//string res = "{\"code\":200,\"message\":\"success\",\"data\":{\"name\":\"zhangsan\",\"age\":25}}";
+	std::stringstream ss(res);
+	boost::property_tree::ptree pt;
+	//boost::property_tree::read_json(ss, pt);
+	boost::property_tree::json_parser::read_json(ss, pt);
+	//auto v = boost::json::parse(res);
+	auto result = pt.get<T>("beforeAfterTimeDifference");
+	//std::cout << "json:" << result << std::endl;
+}
+
+
+void postCustom(const string& url, const string& token) {
 	boost::asio::io_service io;
 	HttpBoost c(io);
 	c.post(url, token);
 	io.run();
+	string p;
+	readJson(c.getResponse(),p);
 	std::cout << c.getResponse() << endl;
+}
+
+string parseJson(const boost::property_tree::ptree& tree) {
+
+	std::ostringstream buf;
+	boost::property_tree::write_json(buf, tree, false);
+	return buf.str();
 }
 
 
@@ -240,21 +282,43 @@ int main() {
 
 
 
-	
+
 	//HttpPost();
 
 	//HttpBoost();
-
-
+	//boost::property_tree::ptree tree;
+	//tree.put("name", "jack");
+	//tree.put("age", 30);
+	//tree.put("address", "BeiJing");
+	//tree.put("sex", true);
+	//parseJson(tree);
 
 	//custome
 	/*string url = "http://localhost:8001/eduservice/chapter/addChapter/[{\"courseId\":\"1639144627057586178\",\"title\" : \"4\",\"sort\" : 0}]";
 	string token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzY2hvb2wtdXNlciIsImlhdCI6MTY5MDE2MzYzOSwiZXhwIjoxNjkwMjUwMDM5LCJpZCI6IjE2MzU0Njk5MDU1NzI3MDQyNTgiLCJuaWNrbmFtZSI6IjEyMyJ9.ZK85giE-wP-UL41wNxz8rqupEDGCn1afidvW7YfJB3g";*/
 
-	//adm test
-	string url = "https://10.1.17.140/opra-api/adm/sams/uploadAdm[[{\"prefix\":\"999\",\"formType\":\"\",\"memoType\":\"ADM\",\"serialNo\":\"9996020000284\",\"admOrderNo\":\"9996020000284\",\"tktRelation\":\"Y\",\"agentNo\":\"08322705\",\"agentName\":\"阿斯兰航空服务（上海）有限公司\",\"status\":\"Y\",\"station\":\"BJS\",\"admCreateDate\":\"20230717\",\"reviewUser\":\"mas\",\"reviewDate\":\"20230801\",\"admReviewDate\":\"20230801\"}]]";
+	/*//adm test
+	boost::property_tree::ptree admtree;
+	admtree.put("prefix", "999");
+	admtree.put("memoType", "ADM");
+	admtree.put("admOrderNo", "9996020000284");
+	admtree.put("tktRelation", "Y");
+
+	string json="["+ parseJson(admtree);
+	json.append(",");
+	json = json.substr(0, json.length() - 1);
+	json.append("]");
+	//string url = "https://test/uploadAdm[[{\"prefix\":\"999\",\"formType\":\"\",\"memoType\":\"ADM\",\"serialNo\":\"9996020000284\",\"admOrderNo\":\"9996020000284\",\"tktRelation\":\"Y\",\"agentNo\":\"08322705\",\"agentName\":\"阿斯兰航空服务（上海）有限公司\",\"status\":\"Y\",\"station\":\"BJS\",\"admCreateDate\":\"20230717\",\"reviewUser\":\"mas\",\"reviewDate\":\"20230801\",\"admReviewDate\":\"20230801\"}]]";
+	string url = "https://test/uploadAdm[";
+	url = url + json + "]";
 	string token = "ZBHS2H5iRok2tSDptbIGdUZJS63ohkH3";
-	postCustom(url, token);
+	postCustom(url, token);*/
+
+	//string url = "https://test[{\"validatingCarrier\":\"CA\",   \"oldValidatingCarrier\":\"CA\",   \"diInd\":\"I\",   \"salesType\":\"E\",   \"passengerType\":\"ADT\",   \"refOrExgAgentNo\":\"08366666\",   \"agentNo\":\"08366666\",   \"refOrExgDateOfIssue\":\"20220530\",   \"dateOfIssue\":\"20220530\",   \"originCityCode\":\"BJS\",   \"originAirportCode\":\"BJS\",   \"destinationCityCode\":\"SHA\",   \"destinationAirportCode\":\"SHA\",   \"flightDate\":\"20230118\",   \"carrier\":\"CA\",   \"operatingCarrier\":\"CA\",   \"cabinClass\":\"C\",   \"rbd\":\"C\",   \"fareBasis\":\"C\",   \"beforeAfterInd\":\"B\",   \"beforeAfterTimeDifference\":20.666 }]";
+	string url = "http://test[{\"validatingCarrier\":\"CA\",   \"oldValidatingCarrier\":\"CA\",   \"diInd\":\"I\",   \"salesType\":\"E\",   \"passengerType\":\"ADT\",   \"refOrExgAgentNo\":\"08366666\",   \"agentNo\":\"08366666\",   \"refOrExgDateOfIssue\":\"20220530\",   \"dateOfIssue\":\"20220530\",   \"originCityCode\":\"BJS\",   \"originAirportCode\":\"BJS\",   \"destinationCityCode\":\"SHA\",   \"destinationAirportCode\":\"SHA\",   \"flightDate\":\"20230118\",   \"carrier\":\"CA\",   \"operatingCarrier\":\"CA\",   \"cabinClass\":\"C\",   \"rbd\":\"C\",   \"fareBasis\":\"C\",   \"beforeAfterInd\":\"B\",   \"beforeAfterTimeDifference\":20.666 }]";
+	
+	postCustom(url, "");
+	
 
 	return 0;
 }
